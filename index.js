@@ -25,26 +25,25 @@ if (!semver.satisfies(agentVersion, '>=8.7.0')) {
     'The New Relic Node.js agent must be >= 8.7.0 to instrument AWS SDK v3, current version: %s',
     agentVersion
   )
-  return
+} else {
+  newrelic.instrument({
+    moduleName: '@aws-sdk/smithy-client',
+    onResolved: require('./lib/v3/smithy-client')
+  })
+  newrelic.instrumentMessages({
+    moduleName: '@aws-sdk/client-sns',
+    onResolved: require('./lib/v3/sns')
+  })
+  newrelic.instrumentMessages({
+    moduleName: '@aws-sdk/client-sqs',
+    onResolved: require('./lib/v3/sqs')
+  })
+  newrelic.instrumentDatastore({
+    moduleName: '@aws-sdk/client-dynamodb',
+    onResolved: require('./lib/v3/client-dynamodb')
+  })
+  newrelic.instrumentDatastore({
+    moduleName: '@aws-sdk/lib-dynamodb',
+    onResolved: require('./lib/v3/lib-dynamodb')
+  })
 }
-
-newrelic.instrument({
-  moduleName: '@aws-sdk/smithy-client',
-  onResolved: require('./lib/v3/smithy-client')
-})
-newrelic.instrumentMessages({
-  moduleName: '@aws-sdk/client-sns',
-  onResolved: require('./lib/v3/sns')
-})
-newrelic.instrumentMessages({
-  moduleName: '@aws-sdk/client-sqs',
-  onResolved: require('./lib/v3/sqs')
-})
-newrelic.instrumentDatastore({
-  moduleName: '@aws-sdk/client-dynamodb',
-  onResolved: require('./lib/v3/client-dynamodb')
-})
-newrelic.instrumentDatastore({
-  moduleName: '@aws-sdk/lib-dynamodb',
-  onResolved: require('./lib/v3/lib-dynamodb')
-})
