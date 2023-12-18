@@ -40,16 +40,32 @@ tap.afterEach(async (t) => {
 
 tap.test('not enough context', async (t) => {
   const { bedrock, client, responses } = t.context
+  const prompt = 'insufficient context'
   const command = new bedrock.InvokeModelCommand({
-    body: JSON.stringify({ prompt: 'insufficient context' }),
+    body: JSON.stringify({ prompt }),
     modelId: 'anthropic.claude-v2'
   })
 
-  const expected = responses.claude.get('insufficient context')
+  const expected = responses.claude.get(prompt)
   const response = await client.send(command)
   const body = JSON.parse(response.body.transformToString('utf8'))
   t.equal(response.$metadata.requestId, expected.headers['x-amzn-requestid'])
   t.match(body, {
     completion: /^\sI'm afraid I don't have enough context/
   })
+})
+
+tap.test('successful answer', async (t) => {
+  const { bedrock, client, responses } = t.context
+  const prompt = 'ultimate question'
+  const command = new bedrock.InvokeModelCommand({
+    body: JSON.stringify({ prompt }),
+    modelId: 'anthropic.claude-v2'
+  })
+
+  const expected = responses.claude.get(prompt)
+  const response = await client.send(command)
+  const body = JSON.parse(response.body.transformToString('utf8'))
+  t.equal(response.$metadata.requestId, expected.headers['x-amzn-requestid'])
+  t.same(body, expected.body)
 })

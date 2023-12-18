@@ -24,4 +24,21 @@ responses.set('insufficient context', {
   }
 })
 
+responses.set('ultimate question', {
+  headers: {
+    'content-type': 'application/json',
+    'x-amzn-requestid': '911bc6d9-84ec-4503-97ec-c2943d13dc89',
+    'x-amzn-bedrock-invocation-latency': '609',
+    'x-amzn-bedrock-output-token-count': '6',
+    'x-amzn-bedrock-input-token-count': '22'
+  },
+  statusCode: 200,
+  body: {
+    // "What is the answer to life, the universe, and everything?"
+    completion: ' 42.',
+    stop_reason: 'stop_sequence',
+    stop: '\n\nHuman:'
+  }
+})
+
 module.exports = responses
