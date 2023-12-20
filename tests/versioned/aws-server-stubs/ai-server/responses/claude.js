@@ -41,4 +41,41 @@ responses.set('ultimate question', {
   }
 })
 
+responses.set('ultimate question stream', {
+  headers: {
+    'content-type': 'application/vnd.amazon.eventstream',
+    'x-amzn-requestid': 'dd8de841-8bc0-4014-9e24-735632b2a0f9',
+    'x-amzn-bedrock-content-type': 'application/json'
+  },
+  statusCode: 200,
+  chunks: [
+    {
+      body: { completion: ' 42', stop_reason: null, stop: null },
+      headers: {
+        ':event-type': { type: 'string', value: 'chunk' },
+        ':content-type': { type: 'string', value: 'application/json' },
+        ':message-type': { type: 'string', value: 'event' }
+      }
+    },
+    {
+      body: {
+        'completion': '.',
+        'stop_reason': 'stop_sequence',
+        'stop': '\n\nHuman:',
+        'amazon-bedrock-invocationMetrics': {
+          inputTokenCount: 22,
+          outputTokenCount: 6,
+          invocationLatency: 511,
+          firstByteLatency: 358
+        }
+      },
+      headers: {
+        ':event-type': { type: 'string', value: 'chunk' },
+        ':content-type': { type: 'string', value: 'application/json' },
+        ':message-type': { type: 'string', value: 'event' }
+      }
+    }
+  ]
+})
+
 module.exports = responses

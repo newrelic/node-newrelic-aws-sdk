@@ -69,3 +69,23 @@ tap.test('successful answer', async (t) => {
   t.equal(response.$metadata.requestId, expected.headers['x-amzn-requestid'])
   t.same(body, expected.body)
 })
+
+tap.test('successful answer (streamed)', async (t) => {
+  const { bedrock, client, responses } = t.context
+  const prompt = 'ultimate question stream'
+  const command = new bedrock.InvokeModelWithResponseStreamCommand({
+    body: JSON.stringify({ prompt }),
+    modelId: 'anthropic.claude-v2'
+  })
+
+  const expected = responses.claude.get(prompt)
+  const response = await client.send(command)
+  let i = 0
+  for await (const payload of response.body) {
+    const byteString = new TextDecoder().decode(payload.chunk.bytes)
+    const obj = JSON.parse(byteString)
+    t.same(obj, expected.chunks[i].body)
+    i += 1
+  }
+  t.equal(i, 2)
+})
