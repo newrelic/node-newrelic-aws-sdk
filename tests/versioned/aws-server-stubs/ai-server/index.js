@@ -65,6 +65,9 @@ function handler(req, res) {
     const [, model] = /model\/(.+)\/invoke/.exec(req.url)
     let response
     switch (model) {
+      case 'anthropic.claude-v1':
+      case 'anthropic.claude-instant-v1':
+      // v1 seems to be the same as v2, just with less helpful responses.
       case 'anthropic.claude-v2':
       case 'anthropic.claude-v2:1': {
         response = responses.claude.get(payload.prompt)
