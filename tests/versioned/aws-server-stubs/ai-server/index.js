@@ -65,6 +65,12 @@ function handler(req, res) {
     const [, model] = /model\/(.+)\/invoke/.exec(req.url)
     let response
     switch (model) {
+      case 'ai21.j2-mid-v1':
+      case 'ai21.j2-ultra-v1': {
+        response = responses.ai21.get(payload.prompt)
+        break
+      }
+
       case 'amazon.titan-text-express-v1':
       case 'amazon.titan-embed-text-v1': {
         response = responses.amazon.get(payload.inputText)
