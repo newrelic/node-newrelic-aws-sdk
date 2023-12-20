@@ -5,8 +5,10 @@
 
 'use strict'
 
+const amazon = require('./amazon')
 const claude = require('./claude')
 
 module.exports = {
+  amazon,
   claude
 }

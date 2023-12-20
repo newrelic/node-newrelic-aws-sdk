@@ -65,6 +65,12 @@ function handler(req, res) {
     const [, model] = /model\/(.+)\/invoke/.exec(req.url)
     let response
     switch (model) {
+      case 'amazon.titan-text-express-v1':
+      case 'amazon.titan-embed-text-v1': {
+        response = responses.amazon.get(payload.inputText)
+        break
+      }
+
       case 'anthropic.claude-v1':
       case 'anthropic.claude-instant-v1':
       // v1 seems to be the same as v2, just with less helpful responses.
