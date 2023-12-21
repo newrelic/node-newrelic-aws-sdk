@@ -86,9 +86,27 @@ function handler(req, res) {
         break
       }
 
+      case 'cohere.command-text-v14':
+      case 'cohere.command-light-text-v14': {
+        response = responses.cohere.get(payload.prompt)
+        break
+      }
+
+      case 'cohere.embed-english-v3':
+      case 'cohere.embed-multilingual-v3': {
+        response = responses.cohere.get(payload.texts.join(' '))
+        break
+      }
+
       default: {
         response = { statusCode: 418, body: {} }
       }
+    }
+
+    if (response === undefined) {
+      res.statusCode = 500
+      res.end('could not match prompt')
+      return
     }
 
     res.statusCode = response.statusCode

@@ -8,9 +8,11 @@
 const ai21 = require('./ai21')
 const amazon = require('./amazon')
 const claude = require('./claude')
+const cohere = require('./cohere')
 
 module.exports = {
   ai21,
   amazon,
-  claude
+  claude,
+  cohere
 }
