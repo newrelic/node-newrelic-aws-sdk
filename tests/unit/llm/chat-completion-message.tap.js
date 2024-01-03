@@ -51,13 +51,22 @@ tap.beforeEach((t) => {
   t.context.response = {
     headers: {
       'x-amzn-requestid': 'request-1'
+    },
+    body: Buffer.from('{"foo":"foo"}')
+  }
+
+  t.context.invokeCommand = {
+    input: {
+      accept: 'application/json',
+      contentType: 'application/json',
+      modelId: 'amazon.titan-text-express-v1',
+      body: '{"foo":"foo"}'
     }
   }
 })
 
 tap.test('create creates a new instance', async (t) => {
-  const { agent, awsClient, response } = t.context
-  const event = await LlmChatCompletionMessage.create({ agent, awsClient, response })
+  const event = await LlmChatCompletionMessage.create(t.context)
   t.type(event, LlmEvent)
   t.type(event, LlmChatCompletionMessage)
   t.equal(event.api_key_last_four_digits, '6789')
