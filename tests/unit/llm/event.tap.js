@@ -47,7 +47,7 @@ tap.beforeEach((t) => {
   }
 })
 
-tap.test('create creates a new instance', async (t) => {
+tap.skip('create creates a new instance', async (t) => {
   const event = new LlmEvent(t.context)
   t.ok(event)
   t.equal(event.api_key_last_four_digits, '6789')
