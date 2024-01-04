@@ -38,21 +38,15 @@ tap.beforeEach((t) => {
     }
   }
 
-  t.context.awsClient = {
-    config: {
-      credentials() {
-        return Promise.resolve({
-          accessKeyId: '123456789'
-        })
-      }
-    }
+  t.context.credentials = {
+    accessKeyId: '123456789'
   }
 
   t.context.response = {
     headers: {
       'x-amzn-requestid': 'request-1'
     },
-    body: Buffer.from('{"foo":"foo"}')
+    body: Buffer.from('{"results":[]}')
   }
 
   t.context.invokeCommand = {
@@ -66,7 +60,7 @@ tap.beforeEach((t) => {
 })
 
 tap.test('create creates a new instance', async (t) => {
-  const event = await LlmChatCompletionMessage.create(t.context)
+  const event = new LlmChatCompletionMessage(t.context)
   t.type(event, LlmEvent)
   t.type(event, LlmChatCompletionMessage)
   t.equal(event.api_key_last_four_digits, '6789')

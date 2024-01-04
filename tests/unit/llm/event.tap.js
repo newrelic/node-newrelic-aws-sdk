@@ -22,21 +22,15 @@ tap.beforeEach((t) => {
     }
   }
 
-  t.context.awsClient = {
-    config: {
-      credentials() {
-        return Promise.resolve({
-          accessKeyId: '123456789'
-        })
-      }
-    }
+  t.context.credentials = {
+    accessKeyId: '123456789'
   }
 
   t.context.response = {
     headers: {
       'x-amzn-requestid': 'request-1'
     },
-    body: Buffer.from('{"foo":"foo"}')
+    body: Buffer.from('{"results":[]}')
   }
 
   t.context.invokeCommand = {
@@ -50,7 +44,7 @@ tap.beforeEach((t) => {
 })
 
 tap.test('create creates a new instance', async (t) => {
-  const event = await LlmEvent.create(t.context)
+  const event = new LlmEvent(t.context)
   t.ok(event)
   t.equal(event.api_key_last_four_digits, '6789')
 })
