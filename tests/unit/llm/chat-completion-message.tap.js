@@ -43,10 +43,14 @@ tap.beforeEach((t) => {
   }
 
   t.context.response = {
-    headers: {
-      'x-amzn-requestid': 'request-1'
+    response: {
+      headers: {
+        'x-amzn-requestid': 'request-1'
+      }
     },
-    body: Buffer.from('{"results":[]}')
+    output: {
+      body: Buffer.from('{"results":[]}')
+    }
   }
 
   t.context.invokeCommand = {
