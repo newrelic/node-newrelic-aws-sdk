@@ -201,9 +201,7 @@
       },
       "files": [
         "bedrock-chat-completions.tap.js",
-        "bedrock-amazon.tap.js",
-        "bedrock-claude.tap.js",
-        "bedrock-cohere.tap.js"
+        "bedrock-embeddings.tap.js"
       ]
     }
   ],

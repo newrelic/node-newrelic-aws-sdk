@@ -77,7 +77,7 @@ function checkExternals({ service, operations, tx }) {
   this.end()
 }
 
-function assertChatCompletionMessages({ tx, chatMsgs, id, modelId, prompt, resContent }) {
+function assertChatCompletionMessages({ tx, chatMsgs, expectedId, modelId, prompt, resContent }) {
   const baseMsg = {
     'appName': 'New Relic for Node.js tests',
     'request_id': 'eda0760a-c3f0-4fc1-9a1e-75559d642866',
@@ -94,17 +94,17 @@ function assertChatCompletionMessages({ tx, chatMsgs, id, modelId, prompt, resCo
 
   chatMsgs.forEach((msg) => {
     const expectedChatMsg = { ...baseMsg }
+    const id = expectedId ? `${expectedId}-${msg[1].sequence}` : msg[1].id
     if (msg[1].sequence === 0) {
       expectedChatMsg.sequence = 0
-      expectedChatMsg.id = `${id}-0`
+      expectedChatMsg.id = id
       expectedChatMsg.content = prompt
     } else if (msg[1].sequence === 1) {
       expectedChatMsg.sequence = 1
       expectedChatMsg.role = 'assistant'
-      expectedChatMsg.id = `${id}-1`
+      expectedChatMsg.id = id
       expectedChatMsg.content = resContent
       expectedChatMsg.is_response = true
-    } else {
     }
 
     this.equal(msg[0].type, 'LlmChatCompletionMessage')
