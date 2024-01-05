@@ -52,7 +52,9 @@ tap.beforeEach((t) => {
     response: {
       statusCode: 200,
       headers: {
-        'x-foo': 'foo'
+        'x-foo': 'foo',
+        ['x-amzn-bedrock-input-token-count']: 25,
+        ['x-amzn-bedrock-output-token-count']: 25
       }
     },
     output: {
@@ -82,11 +84,13 @@ tap.beforeEach((t) => {
 })
 
 tap.test('non-conforming response is handled gracefully', async (t) => {
+  delete t.context.response.response.headers
   const res = new BedrockResponse(t.context)
   t.same(res.completions, [])
   t.equal(res.finishReason, undefined)
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, undefined)
   t.equal(res.id, undefined)
+  t.equal(res.inputTokenCount, 0)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
 })
@@ -96,7 +100,7 @@ tap.test('ai21 malformed responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, [])
   t.equal(res.finishReason, undefined)
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -108,7 +112,7 @@ tap.test('ai21 complete responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, ['ai21-response'])
   t.equal(res.finishReason, 'done')
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, 'ai21-response-1')
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -119,7 +123,7 @@ tap.test('claude malformed responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, [])
   t.equal(res.finishReason, undefined)
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -131,7 +135,7 @@ tap.test('claude complete responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, ['claude-response'])
   t.equal(res.finishReason, 'done')
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -142,7 +146,7 @@ tap.test('cohere malformed responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, [])
   t.equal(res.finishReason, undefined)
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -154,7 +158,7 @@ tap.test('cohere complete responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, ['cohere-response'])
   t.equal(res.finishReason, 'done')
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, 'cohere-response-1')
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -165,7 +169,7 @@ tap.test('titan malformed responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, [])
   t.equal(res.finishReason, undefined)
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)
@@ -177,7 +181,7 @@ tap.test('titan complete responses work', async (t) => {
   const res = new BedrockResponse(t.context)
   t.same(res.completions, ['titan-response'])
   t.equal(res.finishReason, 'done')
-  t.same(res.headers, { 'x-foo': 'foo' })
+  t.same(res.headers, t.context.response.response.headers)
   t.equal(res.id, undefined)
   t.equal(res.requestId, 'aws-request-1')
   t.equal(res.statusCode, 200)

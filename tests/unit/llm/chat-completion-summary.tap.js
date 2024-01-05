@@ -61,9 +61,9 @@ tap.beforeEach((t) => {
 
   t.context.bedrockResponse = {
     headers: {
-      ['x-amzn-request-id']: 'aws-request-1',
-      ['x-amzn-bedrock-input-token-count']: 25,
-      ['x-amzn-bedrock-output-token-count']: 25
+      'x-amzn-request-id': 'aws-request-1',
+      'x-amzn-bedrock-input-token-count': 25,
+      'x-amzn-bedrock-output-token-count': 25
     },
     finishReason: 'done',
     completions: ['completion-1']
