@@ -200,7 +200,7 @@
         "@smithy/util-utf8": "latest"
       },
       "files": [
-        "bedrock-ai21.tap.js",
+        "bedrock-chat-completions.tap.js",
         "bedrock-amazon.tap.js",
         "bedrock-claude.tap.js",
         "bedrock-cohere.tap.js"
