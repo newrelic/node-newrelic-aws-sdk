@@ -6,6 +6,7 @@
 'use strict'
 
 const tap = require('tap')
+const structuredClone = require('./clone')
 const BedrockCommand = require('.././../../lib/llm/bedrock-command')
 
 const ai21 = {
