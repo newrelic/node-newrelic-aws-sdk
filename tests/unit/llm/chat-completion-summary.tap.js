@@ -61,18 +61,18 @@ tap.beforeEach((t) => {
 
   t.context.bedrockResponse = {
     headers: {
-      'x-amzn-request-id': 'aws-request-1',
-      'x-amzn-bedrock-input-token-count': 25,
-      'x-amzn-bedrock-output-token-count': 25
+      'x-amzn-request-id': 'aws-request-1'
     },
     finishReason: 'done',
-    completions: ['completion-1']
+    completions: ['completion-1'],
+    inputTokenCount: 25,
+    outputTokenCount: 25
   }
 })
 
 tap.test('creates a basic summary', async (t) => {
-  delete t.context.bedrockResponse.headers['x-amzn-bedrock-input-token-count']
-  delete t.context.bedrockResponse.headers['x-amzn-bedrock-output-token-count']
+  t.context.bedrockResponse.inputTokenCount = 0
+  t.context.bedrockResponse.outputTokenCount = 0
   const event = new LlmChatCompletionSummary(t.context)
   t.equal(event.conversation_id, 'conversation-1')
   t.equal(event.duration, 100)
