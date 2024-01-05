@@ -6,7 +6,6 @@
 'use strict'
 
 const tap = require('tap')
-const LlmEvent = require('../../../lib/llm/event')
 const LlmChatCompletionMessage = require('../../../lib/llm/chat-completion-message')
 
 tap.beforeEach((t) => {
@@ -16,20 +15,16 @@ tap.beforeEach((t) => {
         return ['test-app']
       }
     },
-
-    llm: {
-      metadata: {
-        foo: 'foo'
-      }
-    },
-
     tracer: {
       getTransaction() {
         return {
           trace: {
             custom: {
               get(key) {
-                return `${key} value`
+                t.equal(key, 0x01 | 0x02 | 0x04 | 0x08)
+                return {
+                  ['llm.conversation_id']: 'conversation-1'
+                }
               }
             }
           }
@@ -42,30 +37,78 @@ tap.beforeEach((t) => {
     accessKeyId: '123456789'
   }
 
-  t.context.response = {
-    response: {
-      headers: {
-        'x-amzn-requestid': 'request-1'
-      }
-    },
-    output: {
-      body: Buffer.from('{"results":[]}')
+  t.context.completionId = 'completion-1'
+
+  t.context.content = 'a prompt'
+
+  t.context.segment = {
+    id: 'segment-1',
+    transaction: {
+      id: 'tx-1',
+      traceId: 'trace-1'
     }
   }
 
-  t.context.invokeCommand = {
-    input: {
-      accept: 'application/json',
-      contentType: 'application/json',
-      modelId: 'amazon.titan-text-express-v1',
-      body: '{"foo":"foo"}'
+  t.context.bedrockResponse = {
+    headers: {
+      'x-amzn-requestid': 'request-1'
+    }
+  }
+
+  t.context.bedrockCommand = {
+    id: 'cmd-1',
+    prompt: 'who are you',
+    isAi21() {
+      return false
+    },
+    isClaude() {
+      return false
+    },
+    isCohere() {
+      return false
+    },
+    isTitan() {
+      return false
     }
   }
 })
 
-tap.skip('create creates a new instance', async (t) => {
+tap.test('create creates a non-response instance', async (t) => {
   const event = new LlmChatCompletionMessage(t.context)
-  t.type(event, LlmEvent)
-  t.type(event, LlmChatCompletionMessage)
-  t.equal(event.api_key_last_four_digits, '6789')
+  t.equal(event.is_response, false)
+  t.equal(event.conversation_id, 'conversation-1')
+  t.equal(event.completion_id, 'completion-1')
+  t.equal(event.sequence, 0)
+  t.equal(event.content, 'who are you')
+  t.equal(event.role, 'user')
+  t.match(event.id, /[\w-]{36}/)
+})
+
+tap.test('create creates a titan response instance', async (t) => {
+  t.context.bedrockCommand.isTitan = () => true
+  t.context.content = 'a response'
+  t.context.isResponse = true
+  const event = new LlmChatCompletionMessage(t.context)
+  t.equal(event.is_response, true)
+  t.equal(event.conversation_id, 'conversation-1')
+  t.equal(event.completion_id, 'completion-1')
+  t.equal(event.sequence, 0)
+  t.equal(event.content, 'a response')
+  t.equal(event.role, 'assistant')
+  t.match(event.id, /[\w-]{36}-0/)
+})
+
+tap.test('create creates a cohere response instance', async (t) => {
+  t.context.bedrockCommand.isCohere = () => true
+  t.context.content = 'a response'
+  t.context.isResponse = true
+  t.context.bedrockResponse.id = 42
+  const event = new LlmChatCompletionMessage(t.context)
+  t.equal(event.is_response, true)
+  t.equal(event.conversation_id, 'conversation-1')
+  t.equal(event.completion_id, 'completion-1')
+  t.equal(event.sequence, 0)
+  t.equal(event.content, 'a response')
+  t.equal(event.role, 'assistant')
+  t.match(event.id, /42-0/)
 })

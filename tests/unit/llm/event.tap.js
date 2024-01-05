@@ -23,9 +23,7 @@ tap.beforeEach((t) => {
               get(key) {
                 t.equal(key, 0x01 | 0x02 | 0x04 | 0x08)
                 return {
-                  attrs: {
-                    ['llm.conversation_id']: 'conversation-1'
-                  }
+                  ['llm.conversation_id']: 'conversation-1'
                 }
               }
             }
