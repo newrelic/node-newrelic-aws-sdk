@@ -201,7 +201,8 @@
       },
       "files": [
         "bedrock-chat-completions.tap.js",
-        "bedrock-embeddings.tap.js"
+        "bedrock-embeddings.tap.js",
+        "bedrock-negative-tests.tap.js"
       ]
     }
   ],
