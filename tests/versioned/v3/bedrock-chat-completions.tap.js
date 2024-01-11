@@ -148,18 +148,48 @@ tap.afterEach(async (t) => {
     }
   )
 
-  tap.test(`${modelId}: text answer (streamed)`, async (t) => {
-    const { bedrock, client, responses } = t.context
+  tap.test(`${modelId}: text answer (streamed)`, (t) => {
+    if (modelId.includes('ai21')) {
+      t.skip('model does not support streaming')
+      t.end()
+      return
+    }
+
+    const { bedrock, client, helper } = t.context
     const prompt = `text ${resKey} ultimate question streamed`
     const input = requests[resKey](prompt, modelId)
     const command = new bedrock.InvokeModelWithResponseStreamCommand(input)
 
-    const expected = responses[resKey].get(prompt)
-    try {
-      await client.send(command)
-    } catch (error) {
-      t.equal(error.message, expected.body.message)
-    }
+    const { agent } = helper
+    const api = helper.getAgentApi()
+    helper.runInTransaction(async (tx) => {
+      api.addCustomAttribute('llm.conversation_id', 'convo-id')
+
+      const response = await client.send(command)
+      for await (const event of response.body) {
+        // no-op iteration over the stream in order to exercise the instrumentation
+        event
+      }
+
+      const events = agent.customEventAggregator.events.toArray()
+      const chatSummary = events.filter(([{ type }]) => type === 'LlmChatCompletionSummary')[0]
+      const chatMsgs = events.filter(([{ type }]) => type === 'LlmChatCompletionMessage')
+      t.equal(events.length > 2, true)
+
+      t.llmMessages({
+        modelId,
+        prompt,
+        resContent: '42',
+        tx,
+        expectedId: modelId.includes('ai21') || modelId.includes('cohere') ? '1234' : null,
+        chatMsgs
+      })
+
+      t.llmSummary({ tx, modelId, chatSummary, tokenUsage: true, numMsgs: events.length - 1 })
+
+      tx.end()
+      t.end()
+    })
   })
 
   tap.test('should store ids and record feedback message accordingly', (t) => {
@@ -304,5 +334,68 @@ tap.afterEach(async (t) => {
       tx.end()
       t.end()
     })
+  })
+})
+
+tap.test(`ai21: should properly create errors on create completion (streamed)`, (t) => {
+  const { bedrock, client, helper, expectedExternalPath } = t.context
+  const modelId = 'ai21.j2-mid-v1'
+  const prompt = `text ai21 ultimate question error streamed`
+  const input = requests.ai21(prompt, modelId)
+
+  const command = new bedrock.InvokeModelWithResponseStreamCommand(input)
+  const expectedMsg = 'The model is unsupported for streaming'
+  const expectedType = 'ValidationException'
+
+  const { agent } = helper
+  const api = helper.getAgentApi()
+  helper.runInTransaction(async (tx) => {
+    api.addCustomAttribute('llm.conversation_id', 'convo-id')
+    try {
+      await client.send(command)
+    } catch (err) {
+      t.equal(err.message, expectedMsg)
+      t.equal(err.name, expectedType)
+    }
+
+    t.equal(tx.exceptions.length, 1)
+    t.match(tx.exceptions[0], {
+      error: {
+        name: expectedType,
+        message: expectedMsg
+      },
+      customAttributes: {
+        'http.statusCode': 400,
+        'error.message': expectedMsg,
+        'error.code': expectedType,
+        'completion_id': /[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/
+      },
+      agentAttributes: {
+        spanId: /[\w\d]+/
+      }
+    })
+
+    t.segments(tx.trace.root, [
+      {
+        name: 'Llm/completion/Bedrock/InvokeModelWithResponseStreamCommand',
+        children: [{ name: expectedExternalPath(modelId) }]
+      }
+    ])
+
+    const events = agent.customEventAggregator.events.toArray()
+    t.equal(events.length, 2)
+    const chatSummary = events.filter(([{ type }]) => type === 'LlmChatCompletionSummary')[0]
+    const chatMsgs = events.filter(([{ type }]) => type === 'LlmChatCompletionMessage')
+
+    t.llmMessages({
+      modelId,
+      prompt,
+      tx,
+      chatMsgs
+    })
+
+    t.llmSummary({ tx, modelId, chatSummary, error: true })
+    tx.end()
+    t.end()
   })
 })
