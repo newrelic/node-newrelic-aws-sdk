@@ -210,7 +210,7 @@ tap.afterEach(async (t) => {
       t.end()
     })
   })
-  
+
   tap.test(
     `{${modelId}:}: should increment tracking metric for each chat completion event`,
     (t) => {
