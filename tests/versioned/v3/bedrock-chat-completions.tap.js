@@ -211,23 +211,20 @@ tap.afterEach(async (t) => {
     })
   })
 
-  tap.test(
-    `{${modelId}:}: should increment tracking metric for each chat completion event`,
-    (t) => {
-      const { bedrock, client, helper } = t.context
-      const prompt = `text ${resKey} ultimate question`
-      const input = requests[resKey](prompt, modelId)
-      const command = new bedrock.InvokeModelCommand(input)
-      const { agent } = helper
-      helper.runInTransaction(async (tx) => {
-        await client.send(command)
-        const metrics = agent.metrics.getOrCreateMetric(`Nodejs/ML/Bedrock/${pkgVersion}`)
-        t.equal(metrics.callCount > 0, true)
-        tx.end()
-        t.end()
-      })
-    }
-  )
+  tap.test(`${modelId}: should increment tracking metric for each chat completion event`, (t) => {
+    const { bedrock, client, helper } = t.context
+    const prompt = `text ${resKey} ultimate question`
+    const input = requests[resKey](prompt, modelId)
+    const command = new bedrock.InvokeModelCommand(input)
+    const { agent } = helper
+    helper.runInTransaction(async (tx) => {
+      await client.send(command)
+      const metrics = agent.metrics.getOrCreateMetric(`Nodejs/ML/Bedrock/${pkgVersion}`)
+      t.equal(metrics.callCount > 0, true)
+      tx.end()
+      t.end()
+    })
+  })
 
   tap.test(`${modelId}: should properly create errors on create completion`, (t) => {
     const { bedrock, client, helper, expectedExternalPath } = t.context
