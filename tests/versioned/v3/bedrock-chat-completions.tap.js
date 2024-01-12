@@ -289,7 +289,7 @@ tap.afterEach(async (t) => {
       t.end()
     })
   })
-    
+
   tap.test(`{${modelId}:}: should add llm attribute to transaction`, (t) => {
     const { bedrock, client, helper } = t.context
     const prompt = `text ${resKey} ultimate question`
