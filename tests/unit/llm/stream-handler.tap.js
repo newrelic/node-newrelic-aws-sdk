@@ -9,8 +9,6 @@ const tap = require('tap')
 const { BedrockCommand, BedrockResponse, StreamHandler } = require('../../../lib/llm')
 
 tap.beforeEach((t) => {
-  t.context.modelId = 'anthropic'
-
   t.context.response = {
     response: {
       headers: {
@@ -28,6 +26,20 @@ tap.beforeEach((t) => {
     segment: {
       touch() {
         t.pass()
+      }
+    },
+    bedrockCommand: {
+      isCohere() {
+        return false
+      },
+      isClaude() {
+        return false
+      },
+      isLlama2() {
+        return false
+      },
+      isTitan() {
+        return false
       }
     }
   }
@@ -58,6 +70,7 @@ tap.beforeEach((t) => {
 })
 
 tap.test('handles claude streams', async (t) => {
+  t.context.passThroughParams.bedrockCommand.isClaude = () => true
   t.context.chunks = [
     { completion: '1', stop_reason: null },
     { completion: '2', stop_reason: 'done', ...t.context.metrics }
@@ -99,7 +112,7 @@ tap.test('handles claude streams', async (t) => {
 })
 
 tap.test('handles cohere streams', async (t) => {
-  t.context.modelId = 'cohere'
+  t.context.passThroughParams.bedrockCommand.isCohere = () => true
   t.context.chunks = [
     { generations: [{ text: '1', finish_reason: null }] },
     { generations: [{ text: '2', finish_reason: 'done' }], ...t.context.metrics }
@@ -148,7 +161,7 @@ tap.test('handles cohere streams', async (t) => {
 })
 
 tap.test('handles llama2 streams', async (t) => {
-  t.context.modelId = 'meta.llama2'
+  t.context.passThroughParams.bedrockCommand.isLlama2 = () => true
   t.context.chunks = [
     { generation: '1', stop_reason: null },
     { generation: '2', stop_reason: 'done', ...t.context.metrics }
@@ -190,7 +203,7 @@ tap.test('handles llama2 streams', async (t) => {
 })
 
 tap.test('handles titan streams', async (t) => {
-  t.context.modelId = 'amazon'
+  t.context.passThroughParams.bedrockCommand.isTitan = () => true
   t.context.chunks = [
     { outputText: '1', completionReason: null },
     { outputText: '2', completionReason: 'done', ...t.context.metrics }
