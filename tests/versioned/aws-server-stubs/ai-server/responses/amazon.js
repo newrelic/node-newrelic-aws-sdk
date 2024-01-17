@@ -111,4 +111,15 @@ responses.set('embed text amazon error', {
   }
 })
 
+responses.set('text amazon bad stream', {
+  headers: {
+    'content-type': 'application/json',
+    'x-amzn-requestid': 'eda0760a-c3f0-4fc1-9a1e-75559d642866',
+    'x-amzn-errortype':
+      'InternalServerException:http://internal.amazon.com/coral/com.amazon.bedrock/'
+  },
+  statusCode: 500,
+  body: 'bad stream'
+})
+
 module.exports = responses

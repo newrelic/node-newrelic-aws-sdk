@@ -64,7 +64,8 @@ tap.beforeEach(async (t) => {
   const client = new bedrock.BedrockRuntimeClient({
     region: 'us-east-1',
     credentials: FAKE_CREDENTIALS,
-    endpoint: baseUrl
+    endpoint: baseUrl,
+    maxAttempts: 1
   })
   t.context.client = client
 })
@@ -395,6 +396,38 @@ tap.test(`ai21: should properly create errors on create completion (streamed)`, 
     })
 
     t.llmSummary({ tx, modelId, chatSummary, error: true })
+    tx.end()
+    t.end()
+  })
+})
+
+tap.test(`models should properly create errors on stream interruption`, (t) => {
+  const { bedrock, client, helper } = t.context
+  const modelId = 'amazon.titan-text-express-v1'
+  const prompt = `text amazon bad stream`
+  const input = requests.amazon(prompt, modelId)
+
+  const { agent } = helper
+  const command = new bedrock.InvokeModelWithResponseStreamCommand(input)
+  helper.runInTransaction(async (tx) => {
+    try {
+      await client.send(command)
+    } catch (error) {
+      t.match(error, {
+        code: 'ECONNRESET',
+        message: 'aborted',
+        $response: {
+          statusCode: 500
+        }
+      })
+    }
+
+    const events = agent.customEventAggregator.events.toArray()
+    const summary = events.shift()[1]
+    t.equal(tx.exceptions.length, 1)
+    t.equal(events.length, 2)
+    t.equal(summary.error, true)
+
     tx.end()
     t.end()
   })
