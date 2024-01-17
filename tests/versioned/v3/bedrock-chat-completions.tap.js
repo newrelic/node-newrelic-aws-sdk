@@ -338,6 +338,40 @@ tap.afterEach(async (t) => {
   })
 })
 
+tap.test(`cohere embedding streaming works`, (t) => {
+  const { bedrock, client, helper } = t.context
+  const prompt = `embed text cohere stream`
+  const input = {
+    body: JSON.stringify({
+      texts: prompt.split(' '),
+      input_type: 'search_document'
+    }),
+    modelId: 'cohere.embed-english-v3'
+  }
+  const command = new bedrock.InvokeModelWithResponseStreamCommand(input)
+
+  const { agent } = helper
+  const api = helper.getAgentApi()
+  helper.runInTransaction(async (tx) => {
+    api.addCustomAttribute('llm.conversation_id', 'convo-id')
+
+    const response = await client.send(command)
+    for await (const event of response.body) {
+      // no-op iteration over the stream in order to exercise the instrumentation
+      event
+    }
+
+    const events = agent.customEventAggregator.events.toArray()
+    t.equal(events.length, 1)
+    const embedding = events.shift()[1]
+    t.equal(embedding.error, false)
+    t.equal(embedding.input, prompt)
+
+    tx.end()
+    t.end()
+  })
+})
+
 tap.test(`ai21: should properly create errors on create completion (streamed)`, (t) => {
   const { bedrock, client, helper, expectedExternalPath } = t.context
   const modelId = 'ai21.j2-mid-v1'
@@ -423,7 +457,7 @@ tap.test(`models should properly create errors on stream interruption`, (t) => {
     }
 
     const events = agent.customEventAggregator.events.toArray()
-    const summary = events.shift()[1]
+    const summary = events.find((e) => e[0].type === 'LlmChatCompletionSummary')[1]
     t.equal(tx.exceptions.length, 1)
     t.equal(events.length, 2)
     t.equal(summary.error, true)

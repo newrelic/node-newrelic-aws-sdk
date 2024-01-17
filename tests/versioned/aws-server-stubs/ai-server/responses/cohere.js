@@ -85,7 +85,7 @@ responses.set('embed text cohere success', {
 responses.set('embed text cohere stream', {
   headers: {
     'content-type': 'application/vnd.amazon.eventstream',
-    'x-amzn-requestid': 'fbd3923c-3071-4ece-8761-6ba78058f747',
+    'x-amzn-requestid': 'eda0760a-c3f0-4fc1-9a1e-75559d642866',
     'x-amzn-bedrock-content-type': 'application/json'
   },
   statusCode: 200,
@@ -104,8 +104,8 @@ responses.set('embed text cohere stream', {
         'id': 'fbd3923c-3071-4ece-8761-6ba78058f747',
         'texts': ['foo', 'bar'],
         'amazon-bedrock-invocationMetrics': {
-          inputTokenCount: 2,
-          outputTokenCount: 0,
+          inputTokenCount: 4,
+          outputTokenCount: 8,
           invocationLatency: 492,
           firstByteLatency: 480
         }
