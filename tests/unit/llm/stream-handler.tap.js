@@ -32,6 +32,9 @@ tap.beforeEach((t) => {
       isCohere() {
         return false
       },
+      isCohereEmbed() {
+        return false
+      },
       isClaude() {
         return false
       },
@@ -67,6 +70,13 @@ tap.beforeEach((t) => {
     }
   }())
   /* eslint-enable prettier/prettier */
+})
+
+tap.test('unrecognized or unhandled model uses original stream', async (t) => {
+  t.context.modelId = 'amazon.titan-embed-text-v1'
+  const handler = new StreamHandler(t.context)
+  t.equal(handler.generator.name, undefined)
+  t.equal(handler.generator, t.context.stream)
 })
 
 tap.test('handles claude streams', async (t) => {
@@ -154,6 +164,60 @@ tap.test('handles cohere streams', async (t) => {
   const br = new BedrockResponse({ bedrockCommand: bc, response: handler.response })
   t.equal(br.completions.length, 2)
   t.equal(br.finishReason, 'done')
+  t.equal(br.requestId, 'aws-req-1')
+  t.equal(br.statusCode, 200)
+  t.equal(br.inputTokenCount, 5)
+  t.equal(br.outputTokenCount, 10)
+})
+
+tap.test('handles cohere embedding streams', async (t) => {
+  t.context.passThroughParams.bedrockCommand.isCohereEmbed = () => true
+  t.context.chunks = [
+    {
+      embeddings: [
+        [1, 2],
+        [3, 4]
+      ],
+      ...t.context.metrics
+    }
+  ]
+  const handler = new StreamHandler(t.context)
+
+  t.equal(handler.generator.name, 'handleCohereEmbed')
+  for await (const event of handler.generator()) {
+    t.type(event.chunk.bytes, Uint8Array)
+  }
+  t.same(handler.response, {
+    response: {
+      headers: {
+        'x-amzn-bedrock-input-token-count': 5,
+        'x-amzn-bedrock-output-token-count': 10,
+        'x-amzn-requestid': 'aws-req-1'
+      },
+      statusCode: 200
+    },
+    output: {
+      body: new TextEncoder().encode(
+        JSON.stringify({
+          embeddings: [
+            [1, 2],
+            [3, 4]
+          ]
+        })
+      )
+    }
+  })
+
+  const bc = new BedrockCommand({
+    modelId: 'cohere.',
+    body: JSON.stringify({
+      texts: ['prompt'],
+      max_tokens: 5
+    })
+  })
+  const br = new BedrockResponse({ bedrockCommand: bc, response: handler.response })
+  t.equal(br.completions.length, 0)
+  t.equal(br.finishReason, undefined)
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
   t.equal(br.inputTokenCount, 5)

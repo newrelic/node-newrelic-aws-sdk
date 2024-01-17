@@ -435,6 +435,61 @@ tap.test(`ai21: should properly create errors on create completion (streamed)`, 
   })
 })
 
+tap.test(`models that do not support streaming should be handled`, (t) => {
+  const { bedrock, client, helper, expectedExternalPath } = t.context
+  const modelId = 'amazon.titan-embed-text-v1'
+  const prompt = `embed text amazon error streamed`
+  const input = requests.amazon(prompt, modelId)
+
+  const command = new bedrock.InvokeModelWithResponseStreamCommand(input)
+  const expectedMsg = 'The model is unsupported for streaming'
+  const expectedType = 'ValidationException'
+
+  const { agent } = helper
+  const api = helper.getAgentApi()
+  helper.runInTransaction(async (tx) => {
+    api.addCustomAttribute('llm.conversation_id', 'convo-id')
+    try {
+      await client.send(command)
+    } catch (err) {
+      t.equal(err.message, expectedMsg)
+      t.equal(err.name, expectedType)
+    }
+
+    t.equal(tx.exceptions.length, 1)
+    t.match(tx.exceptions[0], {
+      error: {
+        name: expectedType,
+        message: expectedMsg
+      },
+      customAttributes: {
+        'http.statusCode': 400,
+        'error.message': expectedMsg,
+        'error.code': expectedType,
+        'completion_id': undefined
+      },
+      agentAttributes: {
+        spanId: /[\w\d]+/
+      }
+    })
+
+    t.segments(tx.trace.root, [
+      {
+        name: 'Llm/embedding/Bedrock/InvokeModelWithResponseStreamCommand',
+        children: [{ name: expectedExternalPath(modelId) }]
+      }
+    ])
+
+    const events = agent.customEventAggregator.events.toArray()
+    t.equal(events.length, 1)
+    const embedding = events.shift()[1]
+    t.equal(embedding.error, true)
+
+    tx.end()
+    t.end()
+  })
+})
+
 tap.test(`models should properly create errors on stream interruption`, (t) => {
   const { bedrock, client, helper } = t.context
   const modelId = 'amazon.titan-text-express-v1'
