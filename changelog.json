@@ -1,5 +1,22 @@
 {
   "repository": "newrelic/node-newrelic-aws-sdk",
-  "entries": []
+  "entries": [
+    {
+      "version": "7.1.0",
+      "changes": {
+        "security": [],
+        "bugfixes": [],
+        "features": [
+          "Add Bedrock LLM streamed response handling",
+          "Add llm attribute to all transactions that contain llm spans for bedrock",
+          "Added handling errors by adding additional attributes to the transaction errors.",
+          "Record metric on every InvokeModelCommand",
+          "Added ability to store feedback ids by request id",
+          "Add LLama2 support to LLM events and mock server",
+          "Add instrumentation for InvokeModelCommand",
+          "Add initial objects for LLM events"
+        ]
+      }
+    }
+  ]
 }
-
