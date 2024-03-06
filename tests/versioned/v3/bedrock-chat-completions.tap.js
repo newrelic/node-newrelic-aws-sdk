@@ -605,25 +605,17 @@ tap.test('should not instrument stream when disabled', (t) => {
 })
 
 tap.test('should utilize tokenCountCallback when set', (t) => {
-  t.plan(9)
+  t.plan(5)
 
   const { bedrock, client, helper } = t.context
   const prompt = 'text amazon user token count callback response'
   const input = requests.amazon(prompt, 'amazon.titan-text-express-v1')
 
+  helper.agent.config.ai_monitoring.record_content.enabled = false
   helper.agent.llm.tokenCountCallback = function (model, content) {
     t.equal(model, 'amazon.titan-text-express-v1')
-    t.same(content, {
-      inputTextTokenCount: 13,
-      results: [
-        {
-          tokenCount: 4,
-          outputText: '42',
-          completionReason: 'endoftext'
-        }
-      ]
-    })
-    return content.inputTextTokenCount + content.results[0].tokenCount
+    t.equal([prompt, '42'].includes(content), true)
+    return content?.split(' ')?.length
   }
   const command = new bedrock.InvokeModelCommand(input)
 
@@ -634,7 +626,7 @@ tap.test('should utilize tokenCountCallback when set', (t) => {
     const events = helper.agent.customEventAggregator.events.toArray()
     const completions = events.filter((e) => e[0].type === 'LlmChatCompletionMessage')
     t.equal(
-      completions.some((e) => e[1].token_count === 17),
+      completions.some((e) => e[1].token_count === 7),
       true
     )
 

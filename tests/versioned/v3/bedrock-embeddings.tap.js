@@ -253,19 +253,17 @@ tap.afterEach(async (t) => {
 })
 
 tap.test('should utilize tokenCountCallback when set', (t) => {
-  t.plan(7)
+  t.plan(3)
 
   const { bedrock, client, helper } = t.context
   const prompt = 'embed text amazon token count callback response'
   const input = requests.amazon(prompt, 'amazon.titan-text-express-v1')
 
+  helper.agent.config.ai_monitoring.record_content.enabled = false
   helper.agent.llm.tokenCountCallback = function (model, content) {
     t.equal(model, 'amazon.titan-text-express-v1')
-    t.same(content, {
-      embedding: [0.1, 0.2, 0.3, 0.4],
-      inputTextTokenCount: 13
-    })
-    return content.inputTextTokenCount
+    t.equal(content, prompt)
+    return content?.split(' ')?.length
   }
   const command = new bedrock.InvokeModelCommand(input)
 
@@ -276,7 +274,7 @@ tap.test('should utilize tokenCountCallback when set', (t) => {
     const events = helper.agent.customEventAggregator.events.toArray()
     const completions = events.filter((e) => e[0].type === 'LlmChatCompletionMessage')
     t.equal(
-      completions.some((e) => e[1].token_count === 13),
+      completions.some((e) => e[1].token_count === 7),
       true
     )
 
