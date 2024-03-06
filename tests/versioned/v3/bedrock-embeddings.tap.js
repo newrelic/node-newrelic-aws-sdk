@@ -251,3 +251,36 @@ tap.afterEach(async (t) => {
     })
   })
 })
+
+tap.test('should utilize tokenCountCallback when set', (t) => {
+  t.plan(7)
+
+  const { bedrock, client, helper } = t.context
+  const prompt = 'embed text amazon token count callback response'
+  const input = requests.amazon(prompt, 'amazon.titan-text-express-v1')
+
+  helper.agent.llm.tokenCountCallback = function (model, content) {
+    t.equal(model, 'amazon.titan-text-express-v1')
+    t.same(content, {
+      embedding: [0.1, 0.2, 0.3, 0.4],
+      inputTextTokenCount: 13
+    })
+    return content.inputTextTokenCount
+  }
+  const command = new bedrock.InvokeModelCommand(input)
+
+  helper.runInTransaction(async (tx) => {
+    await client.send(command)
+
+    // Chat completion messages should have the correct `token_count` value.
+    const events = helper.agent.customEventAggregator.events.toArray()
+    const completions = events.filter((e) => e[0].type === 'LlmChatCompletionMessage')
+    t.equal(
+      completions.some((e) => e[1].token_count === 13),
+      true
+    )
+
+    tx.end()
+    t.end()
+  })
+})
