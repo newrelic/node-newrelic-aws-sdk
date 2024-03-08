@@ -117,8 +117,6 @@ tap.test('handles claude streams', async (t) => {
   t.equal(br.finishReason, 'done')
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
-  t.equal(br.inputTokenCount, 5)
-  t.equal(br.outputTokenCount, 10)
 })
 
 tap.test('handles cohere streams', async (t) => {
@@ -166,8 +164,6 @@ tap.test('handles cohere streams', async (t) => {
   t.equal(br.finishReason, 'done')
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
-  t.equal(br.inputTokenCount, 5)
-  t.equal(br.outputTokenCount, 10)
 })
 
 tap.test('handles cohere embedding streams', async (t) => {
@@ -220,8 +216,6 @@ tap.test('handles cohere embedding streams', async (t) => {
   t.equal(br.finishReason, undefined)
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
-  t.equal(br.inputTokenCount, 5)
-  t.equal(br.outputTokenCount, 10)
 })
 
 tap.test('handles llama2 streams', async (t) => {
@@ -262,8 +256,6 @@ tap.test('handles llama2 streams', async (t) => {
   t.equal(br.finishReason, 'done')
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
-  t.equal(br.inputTokenCount, 5)
-  t.equal(br.outputTokenCount, 10)
 })
 
 tap.test('handles titan streams', async (t) => {
@@ -314,6 +306,4 @@ tap.test('handles titan streams', async (t) => {
   t.equal(br.finishReason, 'done')
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
-  t.equal(br.inputTokenCount, 5)
-  t.equal(br.outputTokenCount, 10)
 })

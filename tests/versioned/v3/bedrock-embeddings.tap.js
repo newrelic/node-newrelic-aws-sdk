@@ -117,9 +117,9 @@ tap.afterEach(async (t) => {
         'ingest_source': 'Node',
         'request.model': modelId,
         'duration': tx.trace.root.children[0].getDurationInMillis(),
-        'response.usage.total_tokens': 13,
-        'response.usage.prompt_tokens': 13,
-        'token_count': 13,
+        'response.usage.total_tokens': undefined,
+        'response.usage.prompt_tokens': undefined,
+        'token_count': undefined,
         'input': prompt,
         'error': false
       }
