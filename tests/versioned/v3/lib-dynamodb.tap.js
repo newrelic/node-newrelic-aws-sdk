@@ -144,6 +144,28 @@ tap.test('DynamoDB', (t) => {
     })
   })
 
+  t.test('calling send on client and doc client', (t) => {
+    const docClientFrom = DynamoDBDocumentClient.from(client)
+    helper.runInTransaction(async function (tx) {
+      for (let i = 0; i < tests.length; i++) {
+        const cfg = tests[i]
+        t.comment(`Testing ${cfg.operation}`)
+
+        try {
+          await docClientFrom.send(new ddbCommands[cfg.command](cfg.params))
+          await client.send(new ddbCommands[cfg.command](cfg.params))
+        } catch (err) {
+          t.error(err)
+        }
+      }
+
+      tx.end()
+
+      const args = [t, tests, tx]
+      setImmediate(finish, ...args)
+    })
+  })
+
   t.test('DynamoDBDocument client from commands', (t) => {
     const docClientFrom = DynamoDBDocument.from(client)
     helper.runInTransaction(async function (tx) {
