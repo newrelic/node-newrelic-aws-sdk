@@ -98,6 +98,7 @@ tap.test('non-conforming response is handled gracefully', async (t) => {
   t.equal(res.finishReason, undefined)
   t.same(res.headers, undefined)
   t.equal(res.id, undefined)
+  t.equal(res.inputTokenCount, undefined)
   t.equal(res.requestId, undefined)
   t.equal(res.statusCode, 200)
 })

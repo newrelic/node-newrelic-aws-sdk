@@ -117,6 +117,7 @@ tap.test('handles claude streams', async (t) => {
   t.equal(br.finishReason, 'done')
   t.equal(br.requestId, 'aws-req-1')
   t.equal(br.statusCode, 200)
+  t.equal(br.inputTokenCount, 5)
 })
 
 tap.test('handles cohere streams', async (t) => {
