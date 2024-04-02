@@ -3,7 +3,6 @@
 #### Miscellaneous chores
 
 * **deps-dev:** bump follow-redirects from 1.15.5 to 1.15.6 ([#277](https://github.com/newrelic/node-newrelic-aws-sdk/pull/277)) ([ce0d324](https://github.com/newrelic/node-newrelic-aws-sdk/commit/ce0d324a52bf49bc718470c0477e3134d2301c18))
-    * Signed-off-by: dependabot[bot] <support@github.com> Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
 * Removed unused attributes on LlmChatCompletionSummary and LlmEmbedding ([#278](https://github.com/newrelic/node-newrelic-aws-sdk/pull/278)) ([c1a9978](https://github.com/newrelic/node-newrelic-aws-sdk/commit/c1a9978fe8eac435e238144933f845f5e36d79da))
 * Updated test-utils dependency ([#279](https://github.com/newrelic/node-newrelic-aws-sdk/pull/279)) ([5b037c6](https://github.com/newrelic/node-newrelic-aws-sdk/commit/5b037c68f3332b37efdd79e677fe45be7dbfe60e))
 
