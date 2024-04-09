@@ -7,7 +7,7 @@
 #### Continuous integration
 
 * Removed `use_new_release` input from prepare release workflow ([#283](https://github.com/newrelic/node-newrelic-aws-sdk/pull/283)) ([d63bdd2](https://github.com/newrelic/node-newrelic-aws-sdk/commit/d63bdd2716347ae23a280d338f114adaa25f8076))
-* removed changelog.json file ([#281](https://github.com/newrelic/node-newrelic-aws-sdk/pull/281)) ([e4ac38f](https://github.com/newrelic/node-newrelic-aws-sdk/commit/e4ac38f80f11d52afb2d6e235dbf4e067b689075))
+* Removed changelog.json file ([#281](https://github.com/newrelic/node-newrelic-aws-sdk/pull/281)) ([e4ac38f](https://github.com/newrelic/node-newrelic-aws-sdk/commit/e4ac38f80f11d52afb2d6e235dbf4e067b689075))
 
 ### v7.4.0 (2024-04-02)
 
