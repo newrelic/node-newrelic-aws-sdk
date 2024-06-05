@@ -3,7 +3,7 @@
 #### Miscellaneous chores
 
 * Revert "refactor: Updated aws sdk instrumentation to construct specs at instrumentation ([#259](https://github.com/newrelic/node-newrelic-aws-sdk/issues/259))" ([#286](https://github.com/newrelic/node-newrelic-aws-sdk/pull/286)) ([87678d4](https://github.com/newrelic/node-newrelic-aws-sdk/commit/87678d4ad9c9fcce6ab0ed10b927a3a5156284d6))
-    * * This will allow customers using `newrelic` < `11.11.0` to no longer crash when using `aws-sdk` v2 or v3
+    * This will allow customers using `newrelic` < `11.11.0` to no longer crash when using `aws-sdk` v2 or v3.
 
 ### v7.4.1 (2024-04-09)
 
