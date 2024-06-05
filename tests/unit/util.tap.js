@@ -6,13 +6,6 @@
 'use strict'
 const tap = require('tap')
 const { grabLastUrlSegment, setDynamoParameters } = require('../../lib/util')
-
-function DatastoreParametersMock(params) {
-  this.host = params.host ?? null
-  this.port_path_or_id = params.port_path_or_id ?? null
-  this.database_name = params.database_name ?? null
-  this.collection = params.collection ?? null
-}
 tap.test('Utility Functions', (t) => {
   t.ok(grabLastUrlSegment, 'imported function successfully')
 
@@ -48,12 +41,11 @@ tap.test('DB parameters', (t) => {
   t.test('default values', (t) => {
     const input = {}
     const endpoint = {}
-    const result = setDynamoParameters(DatastoreParametersMock, endpoint, input)
+    const result = setDynamoParameters(endpoint, input)
     t.same(
       result,
       {
         host: undefined,
-        database_name: null,
         port_path_or_id: 443,
         collection: 'Unknown'
       },
@@ -66,12 +58,11 @@ tap.test('DB parameters', (t) => {
   t.test('host, port, collection', (t) => {
     const input = { TableName: 'unit-test' }
     const endpoint = { host: 'unit-test-host', port: '123' }
-    const result = setDynamoParameters(DatastoreParametersMock, endpoint, input)
+    const result = setDynamoParameters(endpoint, input)
     t.same(
       result,
       {
         host: endpoint.host,
-        database_name: null,
         port_path_or_id: endpoint.port,
         collection: input.TableName
       },
@@ -84,12 +75,11 @@ tap.test('DB parameters', (t) => {
   t.test('hostname, port, collection', (t) => {
     const input = { TableName: 'unit-test' }
     const endpoint = { hostname: 'unit-test-host', port: '123' }
-    const result = setDynamoParameters(DatastoreParametersMock, endpoint, input)
+    const result = setDynamoParameters(endpoint, input)
     t.same(
       result,
       {
         host: endpoint.hostname,
-        database_name: null,
         port_path_or_id: endpoint.port,
         collection: input.TableName
       },
